@@ -9,6 +9,7 @@ export const initSocket = (server) => {
       methods: ["GET", "POST"],
       credentials: true,
     },
+    transports: ["websocket", "polling"],
   });
 
   io.on("connection", (socket) => {
@@ -19,7 +20,7 @@ export const initSocket = (server) => {
     });
 
     socket.on("disconnect", () => {
-      console.log("User disconnected");
+      console.log("Disconnected:", socket.id);
     });
   });
 };
