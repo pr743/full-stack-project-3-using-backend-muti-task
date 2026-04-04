@@ -9,20 +9,29 @@ export const initSocket = (server) => {
       methods: ["GET", "POST"],
       credentials: true,
     },
+
+
     transports: ["websocket", "polling"],
+
+
+    pingTimeout: 60000,
+    pingInterval: 25000,
   });
 
   io.on("connection", (socket) => {
-    console.log("User connected:", socket.id);
+    console.log(" User connected:", socket.id);
+
 
     socket.on("joinTask", (taskId) => {
       socket.join(taskId);
     });
 
+
     socket.on("disconnect", () => {
-      console.log("Disconnected:", socket.id);
+      console.log("User disconnected:", socket.id);
     });
   });
 };
+
 
 export const getIO = () => io;
