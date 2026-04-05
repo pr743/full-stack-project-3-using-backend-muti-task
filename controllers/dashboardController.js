@@ -4,7 +4,7 @@ import User from "../models/User.js";
 
 export const getDashboardState = async (req, res) => {
   try {
-    if (req.user) {
+    if (!req.user) {
       return res.status(404).json({
         message: "Unauthorized no user",
       });
