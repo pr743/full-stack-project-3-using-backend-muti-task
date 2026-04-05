@@ -5,69 +5,39 @@ import User from "../models/User.js";
 export const getDashboardState = async (req, res) => {
   try {
     const userId = req.user._id;
-    const tenantId = req.user.tenant;
-    const role = req.user.role;
-
-    let project = 0;
-    let task = 0;
-    let member = 0;
-    let projects = [];
 
 
-    if (role === "admin") {
-      project = await Project.countDocuments({ tenant: tenantId });
-
-      task = await Task.countDocuments({
-        project: { $in: await Project.find({ tenant: tenantId }).distinct("_id") },
-      });
-
-      member = await User.countDocuments({ tenant: tenantId });
-
-      projects = await Project.find({ tenant: tenantId })
-        .sort({ createdAt: -1 })
-        .limit(5)
-        .populate("members.user", "name");
-    }
+    const project = await Project.countDocuments({
+      "members.user": userId,
+    });
 
 
-    else {
-      project = await Project.countDocuments({
-        "members.user": userId,
-      });
+    const task = await Task.countDocuments({
+      assignedTo: userId,
+    });
 
-      task = await Task.countDocuments({
-        assignedTo: userId,
-      });
 
-      member = 1;
+    const member = await User.countDocuments();
 
-      projects = await Project.find({
-        "members.user": userId,
-      })
-        .sort({ createdAt: -1 })
-        .limit(5)
-        .populate("members.user", "name");
-    }
+    const notifications = 0;
 
-    const notification = 0;
+
+    const projects = await Project.find({
+      "members.user": userId,
+    })
+      .sort({ createdAt: -1 })
+      .limit(3)
+      .populate("members.user", "name");
 
     const recentProjects = projects.map((p) => {
-      const members = p.members || [];
-
       return {
         _id: p._id,
         name: p.name,
 
-        status:
-          members.length === 0
-            ? "Not Started"
-            : members.some((m) => m.status === "inprogress")
-              ? "In Progress"
-              : members.some((m) => m.status === "completed")
-                ? "Completed"
-                : "Active",
 
-        team: members.length,
+        status: p.members.length === 0 ? "Not Started" : "Active",
+
+        team: p.members.length,
       };
     });
 
@@ -76,10 +46,11 @@ export const getDashboardState = async (req, res) => {
       project,
       task,
       member,
-      notification,
+      notifications,
       recentProjects,
     });
   } catch (error) {
+    console.log("Dashboard Error:", error);
     res.status(500).json({
       message: error.message,
     });
