@@ -24,29 +24,25 @@ const projectSchema = new mongoose.Schema(
 
     members: [
       {
-        user: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
-        },
-
-        role: {
-          type: String,
-          enum: ["manager", "developer", "tester"],
-          default: "developer",
-        },
-
-
-        status: {
-          type: String,
-          enum: ["active", "inprogress", "completed"],
-          default: "active",
-        }
-
-
-
-
+        user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        role: String,
+        status: String,
       },
     ],
+
+    role: {
+      type: String,
+      enum: ["manager", "developer", "tester"],
+      default: "developer",
+    },
+
+
+    status: {
+      type: String,
+      enum: ["active", "inprogress", "completed"],
+      default: "active",
+    }
+
   },
   {
     timestamps: true,
